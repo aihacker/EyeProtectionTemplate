@@ -18,6 +18,8 @@ namespace EyeProtectedTemplate
         //          将分支推送到远程存储库时遇到错误: rejected Updates were rejected because the remote contains work that you do not have locally. This is usually caused by another repository pushing to the same ref. You may want to first integrate the remote changes before pushing again.
         //解决方法：https://www.cnblogs.com/jimaojin/p/7667830.html
         //          git pull origin master --allow-unrelated-histories
+
+        HotKeys hotKeys = new HotKeys();
         public Form1()
         {
             InitializeComponent();
@@ -41,6 +43,36 @@ namespace EyeProtectedTemplate
             this.WindowState = FormWindowState.Maximized;
             SetWindowLong(Handle, GWL_EXSTYLE, GetWindowLong(Handle, GWL_EXSTYLE) | WS_EX_TRANSPARENT | WS_EX_LAYERED);
             SetLayeredWindowAttributes(Handle, 0, 128, LWA_ALPHA);
+
+            //这里注册了Ctrl+Alt+E 快捷键
+            hotKeys.Regist(this.Handle, (int)HotKeys.HotkeyModifiers.Control + (int)HotKeys.HotkeyModifiers.Alt, Keys.E, CallBack);
+            //MessageBox.Show("注册成功");
+        }
+
+        //private void btnUnregist_Click(object sender, EventArgs e)
+        //{
+        //    hotKeys.UnRegist(this.Handle, CallBack);
+        //    MessageBox.Show("卸载成功");
+        //}
+
+        protected override void WndProc(ref Message m)
+        {
+            //窗口消息处理函数
+            hotKeys.ProcessHotKey(m);
+            base.WndProc(ref m);
+        }
+
+        //按下快捷键时被调用的方法
+        public void CallBack()
+        {
+            System.Environment.Exit(0);//https://www.cnblogs.com/omme/p/10114381.html
+            //MessageBox.Show("快捷键被调用！");
+        }
+
+        private void Form1_UnLoad(object sender, EventArgs e)
+        {
+            hotKeys.UnRegist(this.Handle, CallBack);
+            MessageBox.Show("卸载成功");
         }
     }
 }
